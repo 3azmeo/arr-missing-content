@@ -1,0 +1,35 @@
+services:
+  arr-missing-content:
+    image: 3azmeo/arr-missing-content:latest
+    container_name: arr-missing-content
+    restart: unless-stopped
+    # Use the same network as your Arrs
+    networks:
+      - arr-stack-network
+    volumes:
+      # Persistent storage for the SQLite database
+      - ./data:/data
+    environment:
+      - LOG_LEVEL=INFO
+      
+      # --- Safety & Scheduling ---
+      - REQUEST_DELAY_SECONDS=5        # Wait 5 seconds between each search (Vital for private trackers)
+      - MAX_CYCLE_DAYS=30              # Force a full cycle reset after 30 days
+      - RUN_EVERY=15                   # Run the check every 15 minutes
+      
+      # --- Sonarr Configuration ---
+      - SONARR_URL=http://sonarr:8989
+      - SONARR_API_KEY=YOUR_SONARR_API_KEY
+      - SONARR_LIMIT=10                # How many episodes to search per run
+      - SONARR_CUTOFF_LIMIT=0          # 0 = Disabled. Set to > 0 to search for upgrades.
+      
+      # --- Radarr Configuration ---
+      - RADARR_URL=http://radarr:7878
+      - RADARR_API_KEY=YOUR_RADARR_API_KEY
+      - RADARR_LIMIT=10                # How many movies to search per run
+      - RADARR_CUTOFF_LIMIT=0          # 0 = Disabled. Set to > 0 to search for upgrades.
+
+# Define the network used by your stack
+networks:
+  arr-stack-network:
+    external: true
